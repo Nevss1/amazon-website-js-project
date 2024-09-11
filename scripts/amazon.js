@@ -1,3 +1,7 @@
+import {cart} from "../data/cart.js";
+import { products } from "../data/products.js";
+
+
 let productsHTML = '';
 
 products.forEach((product) => {
@@ -41,7 +45,7 @@ products.forEach((product) => {
 
           <div class="product-spacer"></div>
 
-          <div class="added-to-cart">
+          <div class="added-to-cart js-added-to-cart-${product.id}">
             <img src="images/icons/checkmark.png">
             Added
           </div>
@@ -58,12 +62,17 @@ document.querySelector('.js-products-grid').innerHTML = productsHTML;
 let Cartquantity = 0;
 document.querySelector('.js-cart-quantity').innerHTML = Cartquantity;
 
+
+
 document.querySelectorAll('.js-add-to-cart')
     .forEach((button) => {
+    console.log('loop')
+    let addedCartTimeoutId;
+
     button.addEventListener('click', () => {     
+        
         let matchingItem;
-        let productId = button.dataset.productId;
-        let productName = button.dataset.productName;
+        let { productId, productName } = button.dataset;
 
         cart.forEach((item) => {
             if (productId === item.productId) { // verifies if there is already a item in cart
@@ -72,23 +81,31 @@ document.querySelectorAll('.js-add-to-cart')
         })
 
         quantity_item = document.querySelector(`.js-quantity-selector-${productId}`).value;
+        const addedCart = document.querySelector(`.js-added-to-cart-${productId}`);
 
         if (matchingItem) { // if yes, then add plus 1
             matchingItem.quantity += Number(quantity_item)    
         } else {
             cart.push({
-                productName: productName, // if not, add to cart
-                productId: productId,
+                productName, // if not, add to cart
+                productId,
                 quantity: Number(quantity_item)
-            });
+            });  
         }
 
         let Cartquantity = 0;
         cart.forEach((item) => {
           Cartquantity += item.quantity;
-          console.log(item.quantity, "cart here")
         })
         document.querySelector('.js-cart-quantity').innerHTML = Cartquantity;
+        addedCart.classList.add('cart-added')
+        if (addedCartTimeoutId) {
+          clearTimeout(addedCartTimeoutId);
+        }
+        const timeoutId = setTimeout(() => addedCart.classList.remove('cart-added'), 2000);
+        addedCartTimeoutId = timeoutId;
+        
+          
     })
 });
 
